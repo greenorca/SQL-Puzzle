@@ -16,6 +16,19 @@ Currently, it looks like this:
 
 and most of all: Windsurf AI 🕺
 
+# Deployment
+
+The app is deployed on GitHub Pages at https://svendiedrichsen.github.io/SQL_Puzzle/
+
+To deploy:
+
+```bash
+npm install
+npm run build
+# run a docke container
+docker run --rm -p 8080:80 -v ./build:/usr/local/apache2/htdocs httpd:latest
+```
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
