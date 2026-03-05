@@ -20,7 +20,7 @@ function App() {
   const getUserOrderDisplay = () => {
     const elements = gameState.userOrder.map(el => el.content);
     return elements.map((content, index) => {
-      const shouldBreak = ['JOIN', 'FROM', 'WHERE', 'VALUES', 'SET'].includes(content);
+      const shouldBreak = ['JOIN', 'FROM', 'WHERE', 'VALUES', 'SET', 'GROUP BY','ORDER BY','LIMIT'].includes(content);
       return (
         <React.Fragment key={index}>
           {shouldBreak && <br />}

@@ -218,11 +218,11 @@ users {
       { id: '2', content: 'users', type: 'identifier' },
       { id: '3', content: 'SET', type: 'keyword' },
       { id: '4', content: 'age', type: 'identifier' },
-      { id: '5', content: '=', type: 'operator', group: 'operator' },
+      { id: '5', content: '=', type: 'operator'},
       { id: '6', content: '26', type: 'identifier' },
       { id: '7', content: 'WHERE', type: 'keyword' },
       { id: '8', content: 'id', type: 'identifier' },
-      { id: '9', content: '=', type: 'operator', group: 'operator' },
+      { id: '9', content: '=', type: 'operator'},
       { id: '10', content: '1', type: 'identifier' },
       { id: '11', content: ';', type: 'operator' }
     ],
@@ -306,6 +306,58 @@ users {
     ],
     ['USERS_PERMISSIONS']
   ),
+createPuzzle(
+    '10',
+    'COMPLEX JOINS AND GROUPING',
+    'Retrieve user\'s name, game title and maximum score. Join the relevant tables from user to game to get this information.',
+    [
+        { id: '1', content: 'SELECT', type: 'keyword' },
+        { id: '2', content: 'user.name', type: 'identifier' },
+        { id: '3', content: ',', type: 'operator' },
+        { id: '4', content: 'game.title', type: 'identifier' },
+        { id: '5', content: ',', type: 'operator' },
+        { id: '6', content: 'max(score)', type: 'function' },
+        { id: '7', content: 'FROM', type: 'keyword' },
+        { id: '8', content: 'user', type: 'identifier' },
+        { id: '9', content: 'JOIN', type: 'keyword' },
+        { id: '10', content: 'played', type: 'identifier' },
+        { id: '11', content: 'ON', type: 'keyword' },
+        { id: '12', content: 'user.id_user', type: 'identifier', group: 'joins_on_1' },
+        { id: '13', content: '=', type: 'operator'},
+        { id: '14', content: 'played.id_user', type: 'identifier', group: 'joins_on_1' },
+        { id: '15', content: 'JOIN', type: 'keyword' },
+        { id: '16', content: 'game', type: 'identifier' },
+        { id: '17', content: 'ON', type: 'keyword' },
+        { id: '18', content: 'game.id_game', type: 'identifier', group: 'joins_on_2' },
+        { id: '19', content: '=', type: 'operator'},
+        { id: '20', content: 'played.id_game', type: 'identifier', group: 'joins_on_2' },
+        { id: '21', content: 'GROUP BY', type: 'keyword' },
+        { id: '22', content: 'user.id_user', type: 'identifier', group: 'group_by' },
+        { id: '23', content: ',', type: 'operator'},
+        { id: '24', content: 'game.id_game', type: 'identifier', group: 'group_by' },
+        { id: '25', content: ';', type: 'operator'},
+        
+    ],
+    ['JOINS', 'ORDER_LIMIT_AGGREGATES'],
+    `erDiagram
+user }o--|| played : "plays"
+played ||--o{ game : "plays"
+
+user  {
+    int id_user PK
+    varchar name
+}
+played  {
+    int id_user FK
+    int id_game FK
+    int score
+    datetime played_date
+}
+game  {
+    int id_game PK
+    varchar title
+}`
+)
   
 ];
 
