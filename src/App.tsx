@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import { useGameState } from './hooks/useGameState';
 import PuzzleArea from './components/PuzzleArea';
 import WinCelebration from './components/WinCelebration';
+import TopicSelector from './components/TopicSelector';
+import { Topic } from './types';
 
 function App() {
-  const { gameState, updateUserOrder, resetPuzzle, nextPuzzle } = useGameState();
+  const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
+  const { gameState, updateUserOrder, resetPuzzle, nextPuzzle } = useGameState(selectedTopics);
 
   const getCorrectOrderDisplay = () => {
     if (!gameState.currentPuzzle) return '';
@@ -13,7 +16,17 @@ function App() {
   };
 
   const getUserOrderDisplay = () => {
-    return gameState.userOrder.map(el => el.content).join(' ');
+    const elements = gameState.userOrder.map(el => el.content);
+    return elements.map((content, index) => {
+      const shouldBreak = ['JOIN', 'FROM', 'WHERE', 'VALUES', 'SET'].includes(content);
+      return (
+        <React.Fragment key={index}>
+          {shouldBreak && <br />}
+          <span>{content}</span>
+          {index < elements.length - 1 && ' '}
+        </React.Fragment>
+      );
+    });
   };
 
   return (
@@ -22,12 +35,18 @@ function App() {
         {/* Header */}
         <header className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            SQL Puzzle Game
+            SQL Puzzle
           </h1>
           <p className="text-gray-600 text-lg">
-            Arrange the SQL elements in the correct order to form a valid statement
+            Arrange the elements to form a valid SQL statement
           </p>
         </header>
+
+        {/* Topic Selector */}
+        <TopicSelector
+          selectedTopics={selectedTopics}
+          onTopicsChange={setSelectedTopics}
+        />
 
         {/* Game Stats */}
         <div className="flex justify-center gap-8 mb-8">
@@ -79,6 +98,13 @@ function App() {
           </div>
         )}
 
+        {/* Puzzle Area */}
+        <PuzzleArea
+          elements={gameState.userOrder}
+          onElementsChange={updateUserOrder}
+          disabled={gameState.isWon}
+        />        
+                
         {/* Current SQL Display */}
         <div className="bg-white rounded-lg p-6 mb-8 shadow-lg max-w-4xl mx-auto">
           <h3 className="text-lg font-semibold text-gray-700 mb-3">Your SQL Statement:</h3>
@@ -95,13 +121,6 @@ function App() {
             </div>
           )}
         </div>
-
-        {/* Puzzle Area */}
-        <PuzzleArea
-          elements={gameState.userOrder}
-          onElementsChange={updateUserOrder}
-          disabled={gameState.isWon}
-        />
 
         {/* Control Buttons */}
         <div className="flex justify-center gap-4 mt-8">

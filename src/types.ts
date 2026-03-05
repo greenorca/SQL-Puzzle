@@ -5,12 +5,18 @@ export interface SQLElement {
   group?: string; // Elements with same group are interchangeable
 }
 
+export type Topic = 'SimpleCRUD' | 'FILTERS' | 'JOINS' | 'ORDER_LIMIT_AGGREGATES' | 'USERS_PERMISSIONS' |'DDL';
+
+export const ALL_TOPICS: Topic[] = ['SimpleCRUD', 'FILTERS', 'JOINS', 'ORDER_LIMIT_AGGREGATES', 'USERS_PERMISSIONS', 'DDL'];
+
 export interface SQLPuzzle {
   id: string;
   title: string;
   description: string;
   correctOrder: SQLElement[];
   shuffledOrder: SQLElement[];
+  topics: Topic[];
+  img?: string;
 }
 
 export interface GameState {

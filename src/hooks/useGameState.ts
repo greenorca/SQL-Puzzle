@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
-import { SQLPuzzle, SQLElement, GameState } from '../types';
-import { getRandomPuzzle } from '../puzzleData';
+import { SQLPuzzle, SQLElement, GameState, Topic } from '../types';
+import { getRandomPuzzle, getRandomPuzzleByTopics } from '../puzzleData';
 
-export const useGameState = () => {
+export const useGameState = (selectedTopics: Topic[] = []) => {
   const [gameState, setGameState] = useState<GameState>({
     currentPuzzle: null,
     userOrder: [],
@@ -11,14 +11,16 @@ export const useGameState = () => {
   });
 
   const initializeGame = useCallback(() => {
-    const puzzle = getRandomPuzzle();
+    const puzzle = selectedTopics.length > 0 
+      ? getRandomPuzzleByTopics(selectedTopics)
+      : getRandomPuzzle();
     setGameState({
       currentPuzzle: puzzle,
       userOrder: [...puzzle.shuffledOrder],
       isWon: false,
       moves: 0,
     });
-  }, []);
+  }, [selectedTopics]);
 
   const checkWinCondition = useCallback((userOrder: SQLElement[], correctOrder: SQLElement[]) => {
     if (userOrder.length !== correctOrder.length) return false;
@@ -29,7 +31,8 @@ export const useGameState = () => {
       const userElement = userOrder[i];
       
       // If exact match, continue
-      if (userElement.id === correctElement.id) {
+      if (userElement.id === correctElement.id || // same ID
+        (correctElement.type === 'operator' && userElement.content === correctElement.content)) { // same operator content
         continue;
       }
       
