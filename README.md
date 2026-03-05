@@ -18,8 +18,6 @@ and most of all: Windsurf AI 🕺
 
 # Deployment
 
-The app is deployed on GitHub Pages at https://svendiedrichsen.github.io/SQL_Puzzle/
-
 To deploy:
 
 ```bash
