@@ -32,7 +32,7 @@ export const useGameState = (selectedTopics: Topic[] = []) => {
       
       // If exact match, continue
       if (userElement.id === correctElement.id || // same ID
-        (correctElement.type === 'operator' && userElement.content === correctElement.content)) { // same operator content
+        (userElement.content === correctElement.content)) { // same content
         continue;
       }
       
