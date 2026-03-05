@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { Topic, ALL_TOPICS } from '../types';
 
 interface TopicSelectorProps {

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { SQLPuzzle, SQLElement, GameState, Topic } from '../types';
+import { SQLElement, GameState, Topic } from '../types';
 import { getRandomPuzzle, getRandomPuzzleByTopics } from '../puzzleData';
 
 export const useGameState = (selectedTopics: Topic[] = []) => {

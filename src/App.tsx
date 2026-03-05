@@ -12,11 +12,6 @@ function App() {
   const [showDiagram, setShowDiagram] = useState(false);
   const { gameState, updateUserOrder, resetPuzzle, nextPuzzle } = useGameState(selectedTopics);
 
-  const getCorrectOrderDisplay = () => {
-    if (!gameState.currentPuzzle) return '';
-    return gameState.currentPuzzle.correctOrder.map(el => el.content).join(' ');
-  };
-
   const getUserOrderDisplay = () => {
     const elements = gameState.userOrder.map(el => el.content);
     return elements.map((content, index) => {

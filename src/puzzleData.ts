@@ -1,4 +1,3 @@
-import { create } from 'domain';
 import { SQLPuzzle, SQLElement, Topic } from './types';
 
 const shuffleArray = <T>(array: T[]): T[] => {
