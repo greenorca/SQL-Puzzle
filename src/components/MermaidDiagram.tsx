@@ -81,20 +81,11 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ mermaidCode, isOpen, on
           />
         </div>
         
-        <div className="mt-4 flex justify-between items-center">
-          <div className="text-sm text-gray-600">
-            <p>Interactive database schema diagram</p>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => navigator.clipboard.writeText(mermaidCode)}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm"
-            >
-              Copy Code
-            </button>
+        <div className="mt-4 flex justify-between items-end">
+          <div className="flex gap-2 w-full justify-end">
             <button
               onClick={onClose}
-              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm"
+              className="  bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm"
             >
               Close
             </button>
