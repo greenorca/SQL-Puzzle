@@ -45,23 +45,10 @@ function App() {
           onTopicsChange={setSelectedTopics}
         />
 
-        {/* Game Stats */}
-        <div className="flex justify-center gap-8 mb-8">
-          <div className="bg-white rounded-lg px-6 py-3 shadow-md">
-            <span className="text-gray-600 text-sm">Moves</span>
-            <p className="text-2xl font-bold text-blue-600">{gameState.moves}</p>
-          </div>
-          <div className="bg-white rounded-lg px-6 py-3 shadow-md">
-            <span className="text-gray-600 text-sm">Status</span>
-            <p className="text-2xl font-bold text-green-600">
-              {gameState.isWon ? 'Won! 🎉' : 'Playing'}
-            </p>
-          </div>
-        </div>
-
         {/* Puzzle Info */}
         {gameState.currentPuzzle && (
-          <div className="bg-white rounded-lg p-6 mb-8 shadow-lg max-w-4xl mx-auto">
+          <div className="flex justify-center gap-2">
+          <div className="bg-white rounded-lg p-6 mb-8 shadow-lg max-w-4xl mx-auto grow">
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
               {gameState.currentPuzzle.title}
             </h2>
@@ -83,7 +70,7 @@ function App() {
             )}
             
             {/* Legend */}
-            <div className="flex flex-wrap gap-4 mb-4 text-sm">
+            <div className="flex flex-wrap gap-1 mb-4 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-blue-500 rounded"></div>
                 <span>Keyword</span>
@@ -106,6 +93,20 @@ function App() {
               </div>
             </div>
           </div>
+            {/* Game Stats */}
+            <div className="flex justify-center gap-8 mb-8">
+              <div className="bg-white rounded-lg px-6 py-3 shadow-md">
+                <span className="text-gray-600 text-sm">Moves</span>
+                <p className="text-2xl font-bold text-blue-600">{gameState.moves}</p>
+              </div>
+              <div className="bg-white rounded-lg px-6 py-3 shadow-md">
+                <span className="text-gray-600 text-sm">Status</span>
+                <p className="text-2xl font-bold text-green-600">
+                  {gameState.isWon ? 'Won! 🎉' : 'Playing'}
+                </p>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Puzzle Area */}
@@ -116,6 +117,7 @@ function App() {
         />        
                 
         {/* Current SQL Display */}
+        { gameState.moves > 0 && (
         <div className="bg-white rounded-lg p-6 mb-8 shadow-lg max-w-4xl mx-auto">
           <h3 className="text-lg font-semibold text-gray-700 mb-3">Your SQL Statement:</h3>
           <div className={`p-4 rounded-lg font-mono text-lg overflow-x-auto ${
@@ -131,6 +133,7 @@ function App() {
             </div>
           )}
         </div>
+        ) }
 
         {/* Control Buttons */}
         <div className="flex justify-center gap-4 mt-8">
@@ -138,13 +141,13 @@ function App() {
             onClick={resetPuzzle}
             className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105 shadow-md"
           >
-            Reset Puzzle
+            Play this again
           </button>
           <button
             onClick={nextPuzzle}
             className="bg-green-700 hover:bg-green-500 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105 shadow-md"
           >
-            Next Puzzle
+            Play another puzzle
           </button>
         </div>
 
