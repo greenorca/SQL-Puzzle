@@ -80,17 +80,6 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ mermaidCode, isOpen, on
             style={{ minHeight: '200px' }}
           />
         </div>
-        
-        <div className="mt-4 flex justify-between items-end">
-          <div className="flex gap-2 w-full justify-end">
-            <button
-              onClick={onClose}
-              className="  bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm"
-            >
-              Close
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
