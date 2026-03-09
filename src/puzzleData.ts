@@ -339,8 +339,8 @@ createPuzzle(
     ],
     ['JOINS', 'ORDER_LIMIT_AGGREGATES'],
     `erDiagram
-user }o--|| played : "plays"
-played ||--o{ game : "plays"
+user ||--o{ played : "plays"
+played }o--|| game : "plays"
 
 user  {
     int id_user PK
