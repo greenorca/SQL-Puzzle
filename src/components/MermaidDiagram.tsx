@@ -55,6 +55,20 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ mermaidCode, isOpen, on
       };
 
       renderDiagram();
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && isOpen) {
+          onClose();
+        }
+      });
+
+      return () => {
+        document.removeEventListener('keydown', (event) => {
+          if (event.key === 'Escape' && isOpen) {
+            onClose();
+          }
+        });
+      };
     }
   }, [isOpen, mermaidCode]);
 
@@ -67,7 +81,8 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ mermaidCode, isOpen, on
           <h3 className="text-xl font-bold text-gray-800">Database Schema</h3>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+            style={{ borderRadius: '25%', borderWidth: '2px' }}
+            className="text-gray-400 hover:text-gray-700 text-2xl font-bold border border-gray-500 border-solid rounded-full w-12 h-12 flex items-center justify-center"
           >
             ×
           </button>
