@@ -28,7 +28,7 @@ const SQLDraggableItem: React.FC<SQLDraggableItemProps> = ({ element }) => {
       case 'keyword':
         return 'bg-blue-500 text-white border-blue-600';
       case 'identifier':
-        return 'bg-green-500 text-white border-green-600';
+        return 'bg-green-700 text-white border-green-800';
       case 'operator':
         return 'bg-gray-500 text-white border-gray-600';
       case 'value':

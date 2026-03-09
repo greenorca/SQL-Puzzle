@@ -89,7 +89,7 @@ function App() {
                 <span>Keyword</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-500 rounded"></div>
+                <div className="w-4 h-4 bg-green-600 rounded"></div>
                 <span>Identifier</span>
               </div>
               <div className="flex items-center gap-2">
@@ -142,7 +142,7 @@ function App() {
           </button>
           <button
             onClick={nextPuzzle}
-            className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105 shadow-md"
+            className="bg-green-700 hover:bg-green-500 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105 shadow-md"
           >
             Next Puzzle
           </button>
