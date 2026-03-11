@@ -22,7 +22,7 @@ const createPuzzle = (id: string, title: string, description: string, elements: 
 };
 
 // Add your MySQL SQL statements here
-// Each puzzle needs: unique id, title, description, and array of SQL elements in CORRECT order
+// Each puzzle needs: unique id, title, description, the array of SQL elements in CORRECT order, a topics array plus an mermais ER diagram string for complexer puzzles
 // Element types: 'keyword', 'identifier', 'operator', 'value', 'function'
 export const puzzles: SQLPuzzle[] = [
   // Example - Replace with your MySQL statements
@@ -356,7 +356,265 @@ game  {
     int id_game PK
     varchar title
 }`
-)
+),
+createPuzzle(
+  '11',
+  'ORDER USERS BY AGE',
+  'Select all users and order them by age in descending order.',
+  [
+    { id: '1', content: 'SELECT', type: 'keyword' },
+    { id: '2', content: '*', type: 'operator' },
+    { id: '3', content: 'FROM', type: 'keyword' },
+    { id: '4', content: 'users', type: 'identifier' },
+    { id: '5', content: 'ORDER BY', type: 'keyword' },
+    { id: '6', content: 'age', type: 'identifier' },
+    { id: '7', content: 'DESC', type: 'keyword' },
+    { id: '8', content: ';', type: 'operator' }
+  ],
+  ['ORDER_LIMIT_AGGREGATES'],
+  `erDiagram
+users {
+    int id PK
+    varchar name
+    int age
+}`
+),
+
+createPuzzle(
+  '12',
+  'LIMIT RESULTS',
+  'Select all users but return only the first 5 results.',
+  [
+    { id: '1', content: 'SELECT', type: 'keyword' },
+    { id: '2', content: '*', type: 'operator' },
+    { id: '3', content: 'FROM', type: 'keyword' },
+    { id: '4', content: 'users', type: 'identifier' },
+    { id: '5', content: 'LIMIT', type: 'keyword' },
+    { id: '6', content: '5', type: 'value' },
+    { id: '7', content: ';', type: 'operator' }
+  ],
+  ['ORDER_LIMIT_AGGREGATES'],
+  `erDiagram
+users {
+    int id PK
+    varchar name
+    int age
+}`
+),
+
+createPuzzle(
+  '13',
+  'COUNT USERS',
+  'Count the total number of users.',
+  [
+    { id: '1', content: 'SELECT', type: 'keyword' },
+    { id: '2', content: 'COUNT(*)', type: 'function' },
+    { id: '3', content: 'FROM', type: 'keyword' },
+    { id: '4', content: 'users', type: 'identifier' },
+    { id: '5', content: ';', type: 'operator' }
+  ],
+  ['ORDER_LIMIT_AGGREGATES'],
+  `erDiagram
+users {
+    int id PK
+    varchar name
+    int age
+}`
+),
+
+createPuzzle(
+  '14',
+  'AVERAGE AGE',
+  'Retrieve the average age of all users.',
+  [
+    { id: '1', content: 'SELECT', type: 'keyword' },
+    { id: '2', content: 'AVG(age)', type: 'function' },
+    { id: '3', content: 'FROM', type: 'keyword' },
+    { id: '4', content: 'users', type: 'identifier' },
+    { id: '5', content: ';', type: 'operator' }
+  ],
+  ['ORDER_LIMIT_AGGREGATES'],
+  `erDiagram
+users {
+    int id PK
+    varchar name
+    int age
+}`
+),
+
+createPuzzle(
+  '15',
+  'GROUP USERS BY AGE',
+  'Count how many users exist for each age.',
+  [
+    { id: '1', content: 'SELECT', type: 'keyword' },
+    { id: '2', content: 'age', type: 'identifier', group: 'group' },
+    { id: '3', content: ',', type: 'operator' },
+    { id: '4', content: 'COUNT(*)', type: 'function', group: 'group' },
+    { id: '5', content: 'FROM', type: 'keyword' },
+    { id: '6', content: 'users', type: 'identifier' },
+    { id: '7', content: 'GROUP BY', type: 'keyword' },
+    { id: '8', content: 'age', type: 'identifier' },
+    { id: '9', content: ';', type: 'operator' }
+  ],
+  ['ORDER_LIMIT_AGGREGATES'],
+  `erDiagram
+users {
+    int id PK
+    varchar name
+    int age
+}`
+),
+
+createPuzzle(
+  '16',
+  'HAVING FILTER',
+  'Show ages that appear more than once among users.',
+  [
+    { id: '1', content: 'SELECT', type: 'keyword' },
+    { id: '2', content: 'age', type: 'identifier' },
+    { id: '3', content: ',', type: 'operator' },
+    { id: '4', content: 'COUNT(*)', type: 'function' },
+    { id: '5', content: 'FROM', type: 'keyword' },
+    { id: '6', content: 'users', type: 'identifier' },
+    { id: '7', content: 'GROUP BY', type: 'keyword' },
+    { id: '8', content: 'age', type: 'identifier' },
+    { id: '9', content: 'HAVING', type: 'keyword' },
+    { id: '10', content: 'COUNT(*)', type: 'function' },
+    { id: '11', content: '>', type: 'operator' },
+    { id: '12', content: '1', type: 'value' },
+    { id: '13', content: ';', type: 'operator' }
+  ],
+  ['ORDER_LIMIT_AGGREGATES', 'FILTERS'],
+  `erDiagram
+users {
+    int id PK
+    varchar name
+    int age
+}`
+),
+
+createPuzzle(
+  '17',
+  'BETWEEN FILTER',
+  'Select all users whose age is between 20 and 30.',
+  [
+    { id: '1', content: 'SELECT', type: 'keyword' },
+    { id: '2', content: '*', type: 'operator' },
+    { id: '3', content: 'FROM', type: 'keyword' },
+    { id: '4', content: 'users', type: 'identifier' },
+    { id: '5', content: 'WHERE', type: 'keyword' },
+    { id: '6', content: 'age', type: 'identifier' },
+    { id: '7', content: 'BETWEEN', type: 'keyword' },
+    { id: '8', content: '20', type: 'value' },
+    { id: '9', content: 'AND', type: 'keyword' },
+    { id: '10', content: '30', type: 'value' },
+    { id: '11', content: ';', type: 'operator' }
+  ],
+  ['FILTERS'],
+  `erDiagram
+users {
+    int id PK
+    varchar name
+    int age
+}`
+),
+
+createPuzzle(
+  '18',
+  'IN FILTER',
+  'Select users whose age is either 20, 25 or 30.',
+  [
+    { id: '1', content: 'SELECT', type: 'keyword' },
+    { id: '2', content: '*', type: 'operator' },
+    { id: '3', content: 'FROM', type: 'keyword' },
+    { id: '4', content: 'users', type: 'identifier' },
+    { id: '5', content: 'WHERE', type: 'keyword' },
+    { id: '6', content: 'age', type: 'identifier' },
+    { id: '7', content: 'IN', type: 'keyword' },
+    { id: '8', content: '(20, 25, 30)', type: 'value' },
+    { id: '9', content: ';', type: 'operator' }
+  ],
+  ['FILTERS'],
+  `erDiagram
+users {
+    int id PK
+    varchar name
+    int age
+}`
+),
+
+createPuzzle(
+  '19',
+  'JOIN WITH FILTER',
+  'Retrieve pupil names together with their class names.',
+  [
+    { id: '1', content: 'SELECT', type: 'keyword' },
+    { id: '2', content: 'pupils.name', type: 'identifier' },
+    { id: '3', content: ',', type: 'operator' },
+    { id: '4', content: 'classes.name', type: 'identifier' },
+    { id: '5', content: 'FROM', type: 'keyword' },
+    { id: '6', content: 'pupils', type: 'identifier' },
+    { id: '7', content: 'JOIN', type: 'keyword' },
+    { id: '8', content: 'classes', type: 'identifier' },
+    { id: '9', content: 'ON', type: 'keyword' },
+    { id: '10', content: 'pupils.id_classes', type: 'identifier', group: 'join' },
+    { id: '11', content: '=', type: 'operator' },
+    { id: '12', content: 'classes.id_classes', type: 'identifier', group: 'join' },
+    { id: '13', content: ';', type: 'operator' }
+  ],
+  ['JOINS'],
+  `erDiagram
+pupils }o--|| classes : belongs_to
+
+pupils {
+    int id_pupil PK
+    varchar name
+    int id_classes FK
+}
+
+classes {
+    int id_classes PK
+    varchar name
+}`
+),
+
+createPuzzle(
+  '20',
+  'TOP SCORE PER USER',
+  'Retrieve each user and their highest score.',
+  [
+    { id: '1', content: 'SELECT', type: 'keyword' },
+    { id: '2', content: 'user.name', type: 'identifier' },
+    { id: '3', content: ',', type: 'operator' },
+    { id: '4', content: 'MAX(score)', type: 'function' },
+    { id: '5', content: 'FROM', type: 'keyword' },
+    { id: '6', content: 'user', type: 'identifier' },
+    { id: '7', content: 'JOIN', type: 'keyword' },
+    { id: '8', content: 'played', type: 'identifier' },
+    { id: '9', content: 'ON', type: 'keyword' },
+    { id: '10', content: 'user.id_user', type: 'identifier', group: 'join' },
+    { id: '11', content: '=', type: 'operator' },
+    { id: '12', content: 'played.id_user', type: 'identifier', group: 'join' },
+    { id: '13', content: 'GROUP BY', type: 'keyword' },
+    { id: '14', content: 'user.id_user', type: 'identifier' },
+    { id: '15', content: ';', type: 'operator' }
+  ],
+  ['JOINS', 'ORDER_LIMIT_AGGREGATES'],
+  `erDiagram
+user ||--o{ played : plays
+
+user {
+    int id_user PK
+    varchar name
+}
+
+played {
+    int id_user FK
+    int id_game FK
+    int score
+}`
+),
   
 ];
 

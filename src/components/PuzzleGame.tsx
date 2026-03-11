@@ -10,7 +10,7 @@ import MermaidDiagram from './MermaidDiagram';
 const PuzzleGame: React.FC = () => {
   const { puzzleId } = useParams<{ puzzleId: string }>();
   const { puzzle, loading, error } = usePuzzleById(puzzleId || null);
-  const { username, setUsername, addCompletedPuzzle, puzzlesCompleted } = useUserInfo();
+  const { username, addCompletedPuzzle, puzzlesCompleted } = useUserInfo();
   const [showWinCelebration, setShowWinCelebration] = React.useState<boolean>(true);
   const [showDiagram, setShowDiagram] = React.useState<boolean>(false);
 
