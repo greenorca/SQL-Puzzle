@@ -232,8 +232,10 @@ const HomePage: React.FC = () => {
 };
 
 function App() {
+  const basename = process.env.PUBLIC_URL || '';
+  
   return (
-    <Router>
+    <Router basename={basename}>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/select" element={<PuzzleSelector />} />
