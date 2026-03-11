@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 import { useGameState } from './hooks/useGameState';
 import { useUserInfo } from './hooks/useUserInfo';
@@ -7,14 +8,17 @@ import PuzzleArea from './components/PuzzleArea';
 import WinCelebration from './components/WinCelebration';
 import TopicSelector from './components/TopicSelector';
 import MermaidDiagram from './components/MermaidDiagram';
+import PuzzleSelector from './components/PuzzleSelector';
+import PuzzleGame from './components/PuzzleGame';
 import { Topic } from './types';
 
-function App() {
-  const [ selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
-  const [ showDiagram, setShowDiagram] = useState<boolean>(false);
-  const [ showWinCelebration, setShowWinCelebration] = useState<boolean>(true);
+// Home page component for random puzzle play
+const HomePage: React.FC = () => {
+  const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
+  const [showDiagram, setShowDiagram] = useState<boolean>(false);
+  const [showWinCelebration, setShowWinCelebration] = useState<boolean>(true);
   const { gameState, updateUserOrder, resetPuzzle, nextPuzzle, giveUp } = useGameState(selectedTopics);
-  const { username, setUsername, addCompletedPuzzle, puzzlesCompleted } = useUserInfo();
+  const { username, setUsername, addCompletedPuzzle, puzzlesCompleted, isAdmin } = useUserInfo();
 
   const getUserOrderDisplay = () => {
     let elements = gameState.userOrder.map(el => el.content)
@@ -62,12 +66,24 @@ function App() {
           </p>
           </div>
           <div>
-            <h4 className="text-gray-800 font-bold text-lg">Hi {username}</h4>
+            <h4 className="text-gray-800 font-bold text-lg">Hi { username }</h4>
             <p className="text-gray-600 text-lg">
               <b>{getNumberPuzzlesSolvedToday()}</b> puzzles solved today
             </p>
           </div>
         </header>
+
+        {/* Navigation */}
+        { isAdmin &&
+        <div className="text-center mb-6">
+          <Link
+            to="/select"
+            className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+          >
+            Choose Specific Puzzle
+          </Link>
+        </div>
+        }
 
         {/* Topic Selector */}
         <TopicSelector
@@ -167,12 +183,14 @@ function App() {
 
         {/* Control Buttons */}
         <div className="flex justify-center gap-4 mt-8">
-          <button
-            onClick={()=>giveUp()}
-            className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105 shadow-md"
-          >
-            I give up. Show me the solution
-          </button>
+          {!gameState.isWon && gameState.moves > 0 &&  // show this only when moves > 0 and not won
+            <button
+              onClick={()=>giveUp()}
+              className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105 shadow-md"
+            >
+              I give up. Show me the solution
+            </button>
+          }
           <button
             onClick={resetPuzzle}
             className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105 shadow-md"
@@ -210,6 +228,18 @@ function App() {
 
       </div>
     </div>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/select" element={<PuzzleSelector />} />
+        <Route path="/puzzle/:puzzleId" element={<PuzzleGame />} />
+      </Routes>
+    </Router>
   );
 }
 

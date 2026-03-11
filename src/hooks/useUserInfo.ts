@@ -11,12 +11,18 @@ const PUZZLES_COMPLETED_KEY = 'sql_puzzle_puzzles_completed';
 export const useUserInfo = () => {
   const [username, setUsername] = useState<string>('');
   const [puzzlesCompleted, setPuzzlesCompleted] = useState<PuzzleCompletion[]>([]);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   // Load username from localStorage on mount
   useEffect(() => {
     const storedUsername = localStorage.getItem(USERNAME_KEY);
     if (storedUsername) {
       setUsername(storedUsername);
+    }
+
+    const storedIsAdmin = localStorage.getItem('sql_puzzle_is_admin');
+    if (storedIsAdmin) {
+      setIsAdmin(JSON.parse(storedIsAdmin));
     }
     
     const storedPuzzlesCompleted = localStorage.getItem(PUZZLES_COMPLETED_KEY);
@@ -45,6 +51,7 @@ export const useUserInfo = () => {
     clearUsername: () => setUsername(''),
     addCompletedPuzzle,
     puzzlesCompleted,
-    hasUsername: !!username
+    hasUsername: !!username,
+    isAdmin
   };
 };

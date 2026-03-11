@@ -377,3 +377,7 @@ export const getRandomPuzzleByTopics = (selectedTopics: Topic[]): SQLPuzzle => {
   const randomIndex = Math.floor(Math.random() * filteredPuzzles.length);
   return filteredPuzzles[randomIndex];
 };
+
+export const getPuzzleById = (id: string): SQLPuzzle | null => {
+  return puzzles.find(puzzle => puzzle.id === id) || null;
+};
