@@ -8,13 +8,6 @@ Currently, it looks like this:
 
 ![alt text](img/ui_screenshot.png)
 
-## TODO: new features:
-
-* Lösung anzeigen knopf
-
-* Gelöste Spiele Zähler 
-
-
 ## Technologies used
 
 - React
