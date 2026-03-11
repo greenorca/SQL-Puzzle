@@ -18,6 +18,11 @@ export const useUserInfo = () => {
     if (storedUsername) {
       setUsername(storedUsername);
     }
+    
+    const storedPuzzlesCompleted = localStorage.getItem(PUZZLES_COMPLETED_KEY);
+    if (storedPuzzlesCompleted) {
+      setPuzzlesCompleted(JSON.parse(storedPuzzlesCompleted));
+    }
   }, []);
 
   // Save username to localStorage whenever it changes
@@ -31,6 +36,7 @@ export const useUserInfo = () => {
 
   const addCompletedPuzzle = (puzzleId: number) => {
     setPuzzlesCompleted([...puzzlesCompleted, { puzzleId, completedAt: new Date() }]);
+    localStorage.setItem(PUZZLES_COMPLETED_KEY, JSON.stringify(puzzlesCompleted));
   };
 
   return {
