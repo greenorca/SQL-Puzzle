@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import { useGameState } from './hooks/useGameState';
+import { useUserInfo } from './hooks/useUserInfo';
+import FirstTimeUser from './components/FirstTimeUser';
 import PuzzleArea from './components/PuzzleArea';
 import WinCelebration from './components/WinCelebration';
 import TopicSelector from './components/TopicSelector';
@@ -8,12 +10,14 @@ import MermaidDiagram from './components/MermaidDiagram';
 import { Topic } from './types';
 
 function App() {
-  const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
-  const [showDiagram, setShowDiagram] = useState(false);
-  const { gameState, updateUserOrder, resetPuzzle, nextPuzzle } = useGameState(selectedTopics);
+  const [ selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
+  const [ showDiagram, setShowDiagram] = useState<boolean>(false);
+  const [ showWinCelebration, setShowWinCelebration] = useState<boolean>(true);
+  const { gameState, updateUserOrder, resetPuzzle, nextPuzzle, giveUp } = useGameState(selectedTopics);
+  const { username, setUsername, addCompletedPuzzle, puzzlesCompleted } = useUserInfo();
 
   const getUserOrderDisplay = () => {
-    const elements = gameState.userOrder.map(el => el.content);
+    let elements = gameState.userOrder.map(el => el.content)
     return elements.map((content, index) => {
       const shouldBreak = ['JOIN', 'FROM', 'WHERE', 'VALUES', 'SET', 'GROUP BY','ORDER BY','LIMIT'].includes(content);
       return (
@@ -26,17 +30,43 @@ function App() {
     });
   };
 
+  const getNumberPuzzlesSolvedToday = (): number => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of day
+    
+    return puzzlesCompleted.filter(item => {
+      const completionDate = new Date(item.completedAt);
+      completionDate.setHours(0, 0, 0, 0); // Set to start of day
+      return completionDate.getTime() === today.getTime();
+    }).length;
+  };
+
+  useEffect(() => {
+    setShowWinCelebration(true);
+    if (gameState.isWon && gameState.currentPuzzle) {
+      addCompletedPuzzle(parseInt(gameState.currentPuzzle.id));
+    }
+  }, [gameState.isWon, gameState.currentPuzzle]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto max-w-4xl px-4 py-8">
         {/* Header */}
-        <header className="text-center mb-8">
+        <header className="text-center mb-8 flex justify-between items-center">
+          <div>
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
             SQL Puzzle
           </h1>
           <p className="text-gray-600 text-lg">
             Arrange the elements to form a valid SQL statement
           </p>
+          </div>
+          <div>
+            <h4 className="text-gray-800 font-bold text-lg">Hi {username}</h4>
+            <p className="text-gray-600 text-lg">
+              <b>{getNumberPuzzlesSolvedToday()}</b> puzzles solved today
+            </p>
+          </div>
         </header>
 
         {/* Topic Selector */}
@@ -47,8 +77,8 @@ function App() {
 
         {/* Puzzle Info */}
         {gameState.currentPuzzle && (
-          <div className="flex justify-center gap-2">
-          <div className="bg-white rounded-lg p-6 mb-8 shadow-lg max-w-4xl mx-auto grow">
+          <div className="bg-white rounded-lg p-6 mb-8 shadow-lg max-w-4xl mx-auto flex">
+            <div className="flex-grow">
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
               {gameState.currentPuzzle.title}
             </h2>
@@ -92,14 +122,14 @@ function App() {
                 <span>Function</span>
               </div>
             </div>
-          </div>
+            </div>
             {/* Game Stats */}
-            <div className="flex justify-center gap-8 mb-8">
-              <div className="bg-white rounded-lg px-6 py-3 shadow-md">
+            <div className="flex justify-center gap-8 text-center">
+              <div className="bg-gray-50 rounded-lg px-6 py-3 shadow-md">
                 <span className="text-gray-600 text-sm">Moves</span>
                 <p className="text-2xl font-bold text-blue-600">{gameState.moves}</p>
               </div>
-              <div className="bg-white rounded-lg px-6 py-3 shadow-md">
+              <div className="bg-gray-50 rounded-lg px-6 py-3 shadow-md">
                 <span className="text-gray-600 text-sm">Status</span>
                 <p className="text-2xl font-bold text-green-600">
                   {gameState.isWon ? 'Won! 🎉' : 'Playing'}
@@ -125,7 +155,7 @@ function App() {
               ? 'bg-green-100 text-green-800 border-2 border-green-500' 
               : 'bg-gray-900 text-green-400'
           }`}>
-            {getUserOrderDisplay() || <span className="text-gray-500">Start arranging elements above...</span>}
+            {gameState.isGivenUp ? gameState.currentPuzzle?.correctOrder.map(el => el.content).join(' ') : getUserOrderDisplay() || <span className="text-gray-500">Start arranging elements above...</span>}
           </div>
           {gameState.isWon && (
             <div className="mt-4 text-center">
@@ -137,6 +167,12 @@ function App() {
 
         {/* Control Buttons */}
         <div className="flex justify-center gap-4 mt-8">
+          <button
+            onClick={()=>giveUp()}
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105 shadow-md"
+          >
+            I give up. Show me the solution
+          </button>
           <button
             onClick={resetPuzzle}
             className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105 shadow-md"
@@ -152,11 +188,12 @@ function App() {
         </div>
 
         {/* Win Celebration */}
-        {gameState.isWon && (
+        {gameState.isWon && showWinCelebration && (
           <WinCelebration
             moves={gameState.moves}
             onNextPuzzle={nextPuzzle}
             onResetPuzzle={resetPuzzle}
+            onClose={() => setShowWinCelebration(false)}
           />
         )}
         
@@ -166,6 +203,11 @@ function App() {
           isOpen={showDiagram}
           onClose={() => setShowDiagram(false)}
         />
+
+        {username === '' && (
+          <FirstTimeUser onNameSubmit={(name) => setUsername(name)} />
+        )}
+
       </div>
     </div>
   );

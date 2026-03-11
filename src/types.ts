@@ -23,5 +23,6 @@ export interface GameState {
   currentPuzzle: SQLPuzzle | null;
   userOrder: SQLElement[];
   isWon: boolean;
+  isGivenUp: boolean;
   moves: number;
 }

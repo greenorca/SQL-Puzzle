@@ -4,12 +4,14 @@ interface WinCelebrationProps {
   moves: number;
   onNextPuzzle: () => void;
   onResetPuzzle: () => void;
+  onClose: () => void;
 }
 
 const WinCelebration: React.FC<WinCelebrationProps> = ({ 
   moves, 
   onNextPuzzle, 
-  onResetPuzzle 
+  onResetPuzzle,
+  onClose 
 }) => {
   const [shouldBounce, setShouldBounce] = useState(true);
 
@@ -38,6 +40,12 @@ const WinCelebration: React.FC<WinCelebrationProps> = ({
         </p>
         
         <div className="flex gap-4 justify-center">
+          <button
+            onClick={onClose}
+            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105"
+          >
+            Close
+          </button>
           <button
             onClick={onNextPuzzle}
             className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105"

@@ -7,6 +7,7 @@ export const useGameState = (selectedTopics: Topic[] = []) => {
     currentPuzzle: null,
     userOrder: [],
     isWon: false,
+    isGivenUp: false,
     moves: 0,
   });
 
@@ -18,6 +19,7 @@ export const useGameState = (selectedTopics: Topic[] = []) => {
       currentPuzzle: puzzle,
       userOrder: [...puzzle.shuffledOrder],
       isWon: false,
+      isGivenUp: false,
       moves: 0,
     });
   }, [selectedTopics]);
@@ -65,6 +67,7 @@ export const useGameState = (selectedTopics: Topic[] = []) => {
         userOrder: newOrder,
         moves: prev.moves + 1,
         isWon,
+        isGivenUp: false,
       };
     });
   }, [checkWinCondition]);
@@ -77,6 +80,7 @@ export const useGameState = (selectedTopics: Topic[] = []) => {
         ...prev,
         userOrder: [...prev.currentPuzzle.shuffledOrder],
         isWon: false,
+        isGivenUp: false,
         moves: 0,
       };
     });
@@ -85,6 +89,19 @@ export const useGameState = (selectedTopics: Topic[] = []) => {
   const nextPuzzle = useCallback(() => {
     initializeGame();
   }, [initializeGame]);
+
+  const giveUp = useCallback(() => {
+    setGameState(prev => {
+      if (!prev.currentPuzzle) return prev;
+      
+      return {
+        ...prev,
+        userOrder: [...prev.currentPuzzle.correctOrder],
+        isWon: false,
+        isGivenUp: true,
+      };
+    });
+  }, []);
 
   useEffect(() => {
     initializeGame();
@@ -95,5 +112,6 @@ export const useGameState = (selectedTopics: Topic[] = []) => {
     updateUserOrder,
     resetPuzzle,
     nextPuzzle,
+    giveUp,
   };
 };
