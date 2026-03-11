@@ -17,9 +17,9 @@ export default function FirstTimeUser({onNameSubmit}: {onNameSubmit: (name: stri
         <h4 className="text-xl font-bold text-green-600 mb-4">
           This is your first time playing. Please enter your name to get started!
         </h4>
-        <form action={(formData) => onNameSubmit(userName as string)}>
-          <input type="text" name="name" placeholder="Enter your name" value={userName} onChange={onChange} />
-          <button type="submit">Start</button>
+        <form action={(formData) => onNameSubmit(userName as string)} className="flex flex-col gap-4">
+          <input type="text" name="name" placeholder="Enter your name" value={userName} onChange={onChange} className="border border-gray-300 rounded-lg px-4 py-2"/>
+          <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded-lg">Start</button>
         </form>
         
       </div>
