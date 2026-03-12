@@ -232,7 +232,7 @@ const HomePage: React.FC = () => {
 };
 
 function App() {
-  const basename = process.env.PUBLIC_URL || '';
+  const basename = import.meta.env.BASE_URL || '';
   
   return (
     <Router basename={basename}>
