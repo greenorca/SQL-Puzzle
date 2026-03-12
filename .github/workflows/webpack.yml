@@ -1,5 +1,6 @@
 name: NodeJS with Webpack
-
+env:
+  MY_PAT: ${{ secrets.MY_PAT }}
 on:
   push:
     branches: [ "main" ]
