@@ -25,4 +25,5 @@ jobs:
     - name: Build
       run: |
         npm install
+        EXPORT PUBLIC_URL=/sql-puzzle
         npm run build
