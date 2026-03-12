@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 import { useGameState } from './hooks/useGameState';
@@ -7,11 +7,13 @@ import FirstTimeUser from './components/FirstTimeUser';
 import PuzzleArea from './components/PuzzleArea';
 import WinCelebration from './components/WinCelebration';
 import TopicSelector from './components/TopicSelector';
-import MermaidDiagram from './components/MermaidDiagram';
-import PuzzleSelector from './components/PuzzleSelector';
-import PuzzleGame from './components/PuzzleGame';
-import { About } from './components/About';
 import { Topic } from './types';
+
+// Code-split components with dynamic imports
+const PuzzleSelector = React.lazy(() => import('./components/PuzzleSelector'));
+const PuzzleGame = React.lazy(() => import('./components/PuzzleGame'));
+const About = React.lazy(() => import('./components/About').then(module => ({ default: module.About })));
+const MermaidDiagram = React.lazy(() => import('./components/MermaidDiagram'));
 
 // Home page component for random puzzle play
 const HomePage: React.FC = () => {
@@ -217,19 +219,19 @@ const HomePage: React.FC = () => {
         )}
         
         {/* Mermaid Diagram Popup */}
-        <MermaidDiagram
-          mermaidCode={gameState.currentPuzzle?.img || ''}
-          isOpen={showDiagram}
-          onClose={() => setShowDiagram(false)}
-        />
+        <Suspense fallback={<div className="flex justify-center items-center h-64">Loading diagram...</div>}>
+          <MermaidDiagram
+            mermaidCode={gameState.currentPuzzle?.img || ''}
+            isOpen={showDiagram}
+            onClose={() => setShowDiagram(false)}
+          />
+        </Suspense>
 
         {username === '' && (
           <FirstTimeUser onNameSubmit={(name) => setUsername(name)} />
         )}
 
       </div>
-      <About />  
-
     </div>
   );
 };
@@ -241,8 +243,30 @@ function App() {
     <Router basename={basename}>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/select" element={<PuzzleSelector />} />
-        <Route path="/puzzle/:puzzleId" element={<PuzzleGame />} />
+        <Route 
+          path="/select" 
+          element={
+            <Suspense fallback={<div className="flex justify-center items-center h-64">Loading...</div>}>
+              <PuzzleSelector />
+            </Suspense>
+          } 
+        />
+        <Route 
+          path="/puzzle/:puzzleId" 
+          element={
+            <Suspense fallback={<div className="flex justify-center items-center h-64">Loading...</div>}>
+              <PuzzleGame />
+            </Suspense>
+          } 
+        />
+        <Route 
+          path="/about" 
+          element={
+            <Suspense fallback={<div className="flex justify-center items-center h-64">Loading...</div>}>
+              <About />
+            </Suspense>
+          } 
+        />
       </Routes>
     </Router>
   );

@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useSpecificPuzzle } from '../hooks/useSpecificPuzzle';
 import { useUserInfo } from '../hooks/useUserInfo';
 import { usePuzzleById } from '../hooks/usePuzzleById';
 import PuzzleArea from './PuzzleArea';
 import WinCelebration from './WinCelebration';
-import MermaidDiagram from './MermaidDiagram';
+
+// Lazy load MermaidDiagram for code splitting
+const MermaidDiagram = React.lazy(() => import('./MermaidDiagram'));
 
 const PuzzleGame: React.FC = () => {
   const { puzzleId } = useParams<{ puzzleId: string }>();
@@ -206,11 +208,13 @@ const PuzzleGame: React.FC = () => {
         )}
         
         {/* Mermaid Diagram Popup */}
-        <MermaidDiagram
-          mermaidCode={puzzle.img || ''}
-          isOpen={showDiagram}
-          onClose={() => setShowDiagram(false)}
-        />
+        <Suspense fallback={<div className="flex justify-center items-center h-64">Loading diagram...</div>}>
+          <MermaidDiagram
+            mermaidCode={puzzle.img || ''}
+            isOpen={showDiagram}
+            onClose={() => setShowDiagram(false)}
+          />
+        </Suspense>
       </div>
     </div>
   );
