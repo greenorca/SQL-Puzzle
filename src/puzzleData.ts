@@ -382,16 +382,19 @@ users {
 
 createPuzzle(
   '12',
-  'LIMIT RESULTS',
-  'Select all users but return only the first 5 results.',
+  'ORDER & LIMIT RESULTS',
+  'Select only the 10 youngest users',
   [
     { id: '1', content: 'SELECT', type: 'keyword' },
     { id: '2', content: '*', type: 'operator' },
     { id: '3', content: 'FROM', type: 'keyword' },
     { id: '4', content: 'users', type: 'identifier' },
-    { id: '5', content: 'LIMIT', type: 'keyword' },
-    { id: '6', content: '5', type: 'value' },
-    { id: '7', content: ';', type: 'operator' }
+    { id: '5', content: 'ORDER', type: 'identifier' },
+    { id: '6', content: 'BY', type: 'identifier' },
+    { id: '7', content: 'age', type: 'value' },
+    { id: '8', content: 'LIMIT', type: 'keyword' },
+    { id: '9', content: '10', type: 'value' },
+    { id: '10', content: ';', type: 'operator' }
   ],
   ['ORDER_LIMIT_AGGREGATES'],
   `erDiagram
@@ -469,28 +472,30 @@ users {
 createPuzzle(
   '16',
   'HAVING FILTER',
-  'Show ages that appear more than once among users.',
+  'Show the city and the number of users for cities that appear more than three times.',
   [
     { id: '1', content: 'SELECT', type: 'keyword' },
-    { id: '2', content: 'age', type: 'identifier' },
+    { id: '2', content: 'city', type: 'identifier' },
     { id: '3', content: ',', type: 'operator' },
     { id: '4', content: 'COUNT(*)', type: 'function' },
-    { id: '5', content: 'FROM', type: 'keyword' },
-    { id: '6', content: 'users', type: 'identifier' },
-    { id: '7', content: 'GROUP BY', type: 'keyword' },
-    { id: '8', content: 'age', type: 'identifier' },
-    { id: '9', content: 'HAVING', type: 'keyword' },
-    { id: '10', content: 'COUNT(*)', type: 'function' },
-    { id: '11', content: '>', type: 'operator' },
-    { id: '12', content: '1', type: 'value' },
-    { id: '13', content: ';', type: 'operator' }
+    { id: '5', content: 'AS', type: 'keyword' },
+    { id: '6', content: 'inhabitants', type: 'value'},
+    { id: '7', content: 'FROM', type: 'keyword' },
+    { id: '8', content: 'users', type: 'identifier' },
+    { id: '9', content: 'GROUP BY', type: 'keyword' },
+    { id: '10', content: 'city', type: 'identifier' },
+    { id: '11', content: 'HAVING', type: 'keyword' },
+    { id: '12', content: 'COUNT(*)', type: 'function' },
+    { id: '13', content: '>', type: 'operator' },
+    { id: '14', content: '1', type: 'value' },
+    { id: '15', content: ';', type: 'operator' }
   ],
   ['ORDER_LIMIT_AGGREGATES', 'FILTERS'],
   `erDiagram
 users {
     int id PK
     varchar name
-    int age
+    varchar city
 }`
 ),
 
@@ -554,9 +559,9 @@ createPuzzle(
     { id: '3', content: ',', type: 'operator' },
     { id: '4', content: 'classes.name', type: 'identifier' },
     { id: '5', content: 'FROM', type: 'keyword' },
-    { id: '6', content: 'pupils', type: 'identifier' },
+    { id: '6', content: 'pupils', type: 'identifier', group: 'tables' },
     { id: '7', content: 'JOIN', type: 'keyword' },
-    { id: '8', content: 'classes', type: 'identifier' },
+    { id: '8', content: 'classes', type: 'identifier', group: 'tables' },
     { id: '9', content: 'ON', type: 'keyword' },
     { id: '10', content: 'pupils.id_classes', type: 'identifier', group: 'join' },
     { id: '11', content: '=', type: 'operator' },
@@ -582,35 +587,37 @@ classes {
 createPuzzle(
   '20',
   'TOP SCORE PER USER',
-  'Retrieve each user and their highest score.',
+  'Retrieve the tree best players and their highest score.',
   [
     { id: '1', content: 'SELECT', type: 'keyword' },
-    { id: '2', content: 'user.name', type: 'identifier' },
+    { id: '2', content: 'player.name', type: 'identifier' },
     { id: '3', content: ',', type: 'operator' },
     { id: '4', content: 'MAX(score)', type: 'function' },
     { id: '5', content: 'FROM', type: 'keyword' },
-    { id: '6', content: 'user', type: 'identifier' },
+    { id: '6', content: 'player', type: 'identifier' },
     { id: '7', content: 'JOIN', type: 'keyword' },
     { id: '8', content: 'played', type: 'identifier' },
     { id: '9', content: 'ON', type: 'keyword' },
-    { id: '10', content: 'user.id_user', type: 'identifier', group: 'join' },
+    { id: '10', content: 'player.id_player', type: 'identifier', group: 'join' },
     { id: '11', content: '=', type: 'operator' },
-    { id: '12', content: 'played.id_user', type: 'identifier', group: 'join' },
+    { id: '12', content: 'played.id_player', type: 'identifier', group: 'join' },
     { id: '13', content: 'GROUP BY', type: 'keyword' },
-    { id: '14', content: 'user.id_user', type: 'identifier' },
-    { id: '15', content: ';', type: 'operator' }
+    { id: '14', content: 'player.id_player', type: 'identifier' },
+    { id: '15', content: 'LIMIT', type: 'keyword' },
+    { id: '16', content: '3', type: 'value'},
+    { id: '17', content: ';', type: 'operator' }
   ],
   ['JOINS', 'ORDER_LIMIT_AGGREGATES'],
   `erDiagram
-user ||--o{ played : plays
+player ||--o{ played : plays
 
-user {
-    int id_user PK
+player {
+    int id_player PK
     varchar name
 }
 
 played {
-    int id_user FK
+    int id_player FK
     int id_game FK
     int score
 }`
