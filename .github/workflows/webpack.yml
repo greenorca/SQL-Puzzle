@@ -28,3 +28,19 @@ jobs:
         npm install
         EXPORT PUBLIC_URL=/sql-puzzle
         npm run build
+
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Copy build folder
+      run: |
+        mkdir -p sql-puzzle
+        cp -R build/* sql-puzzle/
+
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "actions@github.com"
+        git config --local user.name "GitHub Action"
+        git add sql-puzzle/*
+        git commit -m "publish new sql puzzle"
+        git push https://${MY_PAT}>@github.com/greenorca/greenorca.github.io.git
