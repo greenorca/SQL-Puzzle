@@ -10,6 +10,7 @@ import TopicSelector from './components/TopicSelector';
 import MermaidDiagram from './components/MermaidDiagram';
 import PuzzleSelector from './components/PuzzleSelector';
 import PuzzleGame from './components/PuzzleGame';
+import { About } from './components/About';
 import { Topic } from './types';
 
 // Home page component for random puzzle play
@@ -227,6 +228,8 @@ const HomePage: React.FC = () => {
         )}
 
       </div>
+      <About />  
+
     </div>
   );
 };
