@@ -5,7 +5,7 @@ import { resolve } from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: process.env.NODE_ENV === 'production' ? '/sql-puzzle/' : '/',
+  base: process.env.NODE_ENV === 'test-production' ? '/sql-puzzle/' : '/',
   build: {
     outDir: 'build',
     sourcemap: true,
