@@ -1,11 +1,44 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { puzzles } from '../puzzleData';
-import { Topic } from '../types';
+import { puzzles, loadedLocally } from '../puzzleData';
+import { Topic, SQLPuzzle } from '../types';
 
 const PuzzleSelector: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTopic, setSelectedTopic] = useState<Topic | 'all'>('all');
+  const [postingStatus, setPostingStatus] = useState<{ [key: string]: 'idle' | 'loading' | 'success' | 'error' }>({});
+
+  const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc3ODQyNDUwNSwiZXhwIjoxNzc4NTEwOTA1fQ.Lf3KM92QrFjs3mJax15dB7jGlXIQqNoD9HRF9F_Hdu0"; // TODO: Replace with actual token from authentication
+  
+  const postPuzzle = async (puzzle: SQLPuzzle) => {
+    setPostingStatus(prev => ({ ...prev, [puzzle.id]: 'loading' }));
+    
+    try {
+      const response = await fetch('http://localhost:8080/api/puzzles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(puzzle),
+      });
+
+      if (response.ok) {
+        setPostingStatus(prev => ({ ...prev, [puzzle.id]: 'success' }));
+        setTimeout(() => {
+          setPostingStatus(prev => ({ ...prev, [puzzle.id]: 'idle' }));
+        }, 2000);
+      } else {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Error posting puzzle:', error);
+      setPostingStatus(prev => ({ ...prev, [puzzle.id]: 'error' }));
+      setTimeout(() => {
+        setPostingStatus(prev => ({ ...prev, [puzzle.id]: 'idle' }));
+      }, 2000);
+    }
+  };
 
   const filteredPuzzles = puzzles.filter(puzzle => {
     const matchesSearch = puzzle.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -54,20 +87,53 @@ const PuzzleSelector: React.FC = () => {
       {/* Puzzle Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredPuzzles.map((puzzle) => (
-          <Link
+          <div
             key={puzzle.id}
-            to={`/puzzle/${puzzle.id}`}
-            className="block p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition-colors duration-200"
+            className="p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition-colors duration-200"
           >
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="font-semibold text-gray-800">Puzzle #{puzzle.id}</h3>
-              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                {puzzle.topics.join(', ')}
-              </span>
+            <Link
+              to={`/puzzle/${puzzle.id}`}
+              className="block"
+            >
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="font-semibold text-gray-800">Puzzle #{puzzle.id}</h3>
+                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                  {puzzle.topics.join(', ')}
+                </span>
+              </div>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">{puzzle.title}</h4>
+              <p className="text-xs text-gray-600 line-clamp-2">{puzzle.description}</p>
+            </Link>
+            
+            {/* POST Button */
+              loadedLocally === true && <>
+            <div className="mt-3 pt-3 border-t border-gray-100">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  postPuzzle(puzzle);
+                }}
+                disabled={postingStatus[puzzle.id] === 'loading'}
+                className={`w-full text-xs font-medium py-2 px-3 rounded transition-colors duration-200 ${
+                  postingStatus[puzzle.id] === 'loading'
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : postingStatus[puzzle.id] === 'success'
+                    ? 'bg-green-500 text-white'
+                    : postingStatus[puzzle.id] === 'error'
+                    ? 'bg-red-500 text-white'
+                    : 'bg-blue-500 hover:bg-blue-600 text-white'
+                }`}
+              >
+                {postingStatus[puzzle.id] === 'loading' && 'Posting...'}
+                {postingStatus[puzzle.id] === 'success' && '✓ Posted'}
+                {postingStatus[puzzle.id] === 'error' && '✗ Error'}
+                {postingStatus[puzzle.id] === 'idle' && 'Post to API'}
+              </button>
             </div>
-            <h4 className="text-sm font-medium text-gray-700 mb-2">{puzzle.title}</h4>
-            <p className="text-xs text-gray-600 line-clamp-2">{puzzle.description}</p>
-          </Link>
+            </> }
+            
+          </div>
         ))}
       </div>
 

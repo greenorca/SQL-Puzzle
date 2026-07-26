@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
 interface PuzzleCompletion {
   puzzleId: number;
@@ -12,10 +13,11 @@ export const useUserInfo = () => {
   const [username, setUsername] = useState<string>('');
   const [puzzlesCompleted, setPuzzlesCompleted] = useState<PuzzleCompletion[]>([]);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const { user } = useAuth();
 
   // Load username from localStorage on mount
   useEffect(() => {
-    const storedUsername = localStorage.getItem(USERNAME_KEY);
+    const storedUsername = user?.username;
     if (storedUsername) {
       setUsername(storedUsername);
     }
@@ -33,12 +35,12 @@ export const useUserInfo = () => {
 
   // Save username to localStorage whenever it changes
   useEffect(() => {
-    if (username) {
-      localStorage.setItem(USERNAME_KEY, username);
+    if (user?.username) {
+      localStorage.setItem(USERNAME_KEY, user.username);
     } else {
       localStorage.removeItem(USERNAME_KEY);
     }
-  }, [username]);
+  }, [user]);
 
   const addCompletedPuzzle = (puzzleId: number) => {
     setPuzzlesCompleted([...puzzlesCompleted, { puzzleId, completedAt: new Date() }]);

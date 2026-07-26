@@ -19,6 +19,10 @@ export interface SQLPuzzle {
   img?: string;
 }
 
+export interface RemoteSQLPuzzle extends SQLPuzzle{
+  _id: string;
+}
+
 export interface GameState {
   currentPuzzle: SQLPuzzle | null;
   userOrder: SQLElement[];

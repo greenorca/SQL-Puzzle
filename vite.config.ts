@@ -9,6 +9,7 @@ export default defineConfig({
   build: {
     outDir: 'build',
     sourcemap: true,
+    minify: 'terser',
     rollupOptions: {
       output: {
         manualChunks: {
@@ -28,4 +29,12 @@ export default defineConfig({
     port: 3000,
     open: false,
   },
+  // Enhanced source maps for better debugging
+  css: {
+    devSourcemap: true
+  },
+  // Ensure source maps work properly in production builds
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+  }
 })

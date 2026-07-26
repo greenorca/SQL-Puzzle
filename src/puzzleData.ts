@@ -1,4 +1,59 @@
-import { SQLPuzzle, SQLElement, Topic } from './types';
+import { RemoteSQLPuzzle, SQLPuzzle, SQLElement, Topic } from './types';
+import axios from 'axios';
+
+// Load puzzles from API
+let puzzles: SQLPuzzle[] = [];
+
+let loadedLocally = false;
+
+// Type-safe conversion function from RemoteSQLPuzzle to SQLPuzzle
+const convertRemoteToSQLPuzzle = (remotePuzzle: RemoteSQLPuzzle): SQLPuzzle => {
+  const { _id, ...puzzleWithoutId } = remotePuzzle;
+  return {
+    ...puzzleWithoutId,
+    id: _id
+  };
+};
+
+const loadPuzzlesFromAPI = async (token: string): Promise<RemoteSQLPuzzle[]> => {
+  try {
+    const response = await axios.get('http://localhost:8080/api/puzzles', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+    const apiPuzzles = response.data;
+    return apiPuzzles;
+  } catch (error) {
+    alert('Error loading puzzles from API, falling back to local puzzles:'+ error);
+    return [];
+  }
+};
+
+// Function to initialize puzzles from API with token
+export const initializePuzzlesFromAPI = async (token: string): Promise<void> => {
+  try {
+    const loadedPuzzles = await loadPuzzlesFromAPI(token);
+    let finalPuzzles: SQLPuzzle[];
+    
+    if (loadedPuzzles.length === 0) {
+      finalPuzzles = localPuzzles;
+      loadedLocally = true;
+    } else {
+      // Convert RemoteSQLPuzzle to SQLPuzzle using the type-safe function
+      finalPuzzles = loadedPuzzles.map(convertRemoteToSQLPuzzle);
+      loadedLocally = false;
+    }
+    
+    puzzles = finalPuzzles.map(p => ({...p, "shuffledOrder": shuffleArray(p.correctOrder)}));
+  } catch (error) {
+    console.error('Failed to initialize puzzles from API:', error);
+    // Keep using local puzzles if API fails
+    puzzles = localPuzzles.map(p => ({...p, "shuffledOrder": shuffleArray(p.correctOrder)}));
+    loadedLocally = true;
+  }
+};
 
 const shuffleArray = <T>(array: T[]): T[] => {
   const shuffled = [...array];
@@ -24,7 +79,7 @@ const createPuzzle = (id: string, title: string, description: string, elements: 
 // Add your MySQL SQL statements here
 // Each puzzle needs: unique id, title, description, the array of SQL elements in CORRECT order, a topics array plus an mermais ER diagram string for complexer puzzles
 // Element types: 'keyword', 'identifier', 'operator', 'value', 'function'
-export const puzzles: SQLPuzzle[] = [
+export const localPuzzles: SQLPuzzle[] = [
   // Example - Replace with your MySQL statements
   createPuzzle(
     '1',
@@ -625,13 +680,17 @@ played {
   
 ];
 
+
+
 export const getRandomPuzzle = (): SQLPuzzle => {
-  const randomIndex = Math.floor(Math.random() * puzzles.length);
-  return puzzles[randomIndex];
+  const currentPuzzles = puzzles.length > 0 ? puzzles : localPuzzles;
+  const randomIndex = Math.floor(Math.random() * currentPuzzles.length);
+  return currentPuzzles[randomIndex];
 };
 
 export const getRandomPuzzleByTopics = (selectedTopics: Topic[]): SQLPuzzle => {
-  const filteredPuzzles = puzzles.filter(puzzle => 
+  const currentPuzzles = puzzles.length > 0 ? puzzles : localPuzzles;
+  const filteredPuzzles = currentPuzzles.filter(puzzle => 
     puzzle.topics.some(topic => selectedTopics.includes(topic))
   );
   
@@ -644,5 +703,13 @@ export const getRandomPuzzleByTopics = (selectedTopics: Topic[]): SQLPuzzle => {
 };
 
 export const getPuzzleById = (id: string): SQLPuzzle | null => {
-  return puzzles.find(puzzle => puzzle.id === id) || null;
+  const currentPuzzles = puzzles.length > 0 ? puzzles : localPuzzles;
+  return currentPuzzles.find(puzzle => puzzle.id === id) || null;
 };
+
+// Initialize puzzles from local data by default
+puzzles = localPuzzles.map(p => ({...p, "shuffledOrder": shuffleArray(p.correctOrder)}));
+loadedLocally = true;
+
+// Export puzzles for external use
+export { puzzles, loadedLocally };
