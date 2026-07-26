@@ -8,10 +8,10 @@ let loadedLocally = false;
 
 // Type-safe conversion function from RemoteSQLPuzzle to SQLPuzzle
 const convertRemoteToSQLPuzzle = (remotePuzzle: RemoteSQLPuzzle): SQLPuzzle => {
-  const { _id, ...puzzleWithoutId } = remotePuzzle;
+  const { _id, ...rest } = remotePuzzle;
   return {
-    ...puzzleWithoutId,
-    id: _id
+    ...rest,
+    id: _id ?? rest.id ?? ''
   };
 };
 
@@ -26,7 +26,11 @@ const loadPuzzlesFromAPI = async (token: string): Promise<RemoteSQLPuzzle[]> => 
     const apiPuzzles = response.data;
     return apiPuzzles;
   } catch (error) {
-    alert('Error loading puzzles from API, falling back to local puzzles:'+ error);
+    const axiosError = error as any;
+    if (axiosError.response?.status === 401 || axiosError.response?.status === 403) {
+      throw error;
+    }
+    console.warn('Error loading puzzles from API, falling back to local puzzles:', error);
     return [];
   }
 };
@@ -48,6 +52,10 @@ export const initializePuzzlesFromAPI = async (token: string): Promise<void> => 
     
     puzzles = finalPuzzles.map(p => ({...p, "shuffledOrder": shuffleArray(p.correctOrder)}));
   } catch (error) {
+    const axiosError = error as any;
+    if (axiosError.response?.status === 401 || axiosError.response?.status === 403) {
+      throw error;
+    }
     console.error('Failed to initialize puzzles from API:', error);
     // Keep using local puzzles if API fails
     puzzles = localPuzzles.map(p => ({...p, "shuffledOrder": shuffleArray(p.correctOrder)}));

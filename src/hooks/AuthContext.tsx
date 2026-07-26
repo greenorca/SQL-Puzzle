@@ -3,6 +3,7 @@ import axios, { AxiosError } from 'axios'
 
 // Type definitions
 export interface User {
+  id?: string;
   token: string;
   username: string;
   roles: string[];
@@ -61,6 +62,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.log('Login response:', response.data)
       // Store user data in local storage
       const uObject: User = {
+        id: response.data.id,
         token: response.data.token,
         username: response.data.username,
         roles: response.data.roles || []

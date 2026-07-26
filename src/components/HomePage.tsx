@@ -1,5 +1,6 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import { useGameState } from '../hooks/useGameState';
 import { useUserInfo } from '../hooks/useUserInfo';
 import FirstTimeUser from './FirstTimeUser';
@@ -18,9 +19,10 @@ const HomePage: React.FC = () => {
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
   const [showDiagram, setShowDiagram] = useState<boolean>(false);
   const [showWinCelebration, setShowWinCelebration] = useState<boolean>(true);
+  const [puzzleStartTime, setPuzzleStartTime] = useState<Date | null>(null);
   const { gameState, updateUserOrder, resetPuzzle, nextPuzzle, giveUp } = useGameState(selectedTopics);
   const { username, setUsername, addCompletedPuzzle, puzzlesCompleted, isAdmin } = useUserInfo();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const getUserOrderDisplay = () => {
     let elements = gameState.userOrder.map(el => el.content)
@@ -56,10 +58,66 @@ const HomePage: React.FC = () => {
 
   // Initialize puzzles from API when user is authenticated
   useEffect(() => {
-    if (user?.token) {
-      initializePuzzlesFromAPI(user.token);
-    }
+    const initPuzzles = async () => {
+      if (user?.token) {
+        try {
+          await initializePuzzlesFromAPI(user.token);
+        } catch (error) {
+          console.error('Failed to initialize puzzles from API:', error);
+          logout();
+        }
+      }
+    };
+    initPuzzles();
   }, [user?.token]);
+
+  // Track when the current puzzle was started
+  useEffect(() => {
+    if (gameState.currentPuzzle) {
+      setPuzzleStartTime(new Date());
+    }
+  }, [gameState.currentPuzzle]);
+
+  // Persist solved puzzle to the backend on win
+  useEffect(() => {
+    if (gameState.isWon && gameState.currentPuzzle && user?.id && user.token && puzzleStartTime) {
+      const solvedString = gameState.userOrder.map(el => el.content).join(' ');
+      const payload = {
+        puzzleId: gameState.currentPuzzle.id,
+        solvedString,
+        startedAt: puzzleStartTime.toISOString().slice(0, 19)
+      };
+      axios.post(`http://localhost:8080/api/users/${user.id}/solved`, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        }
+      }).catch(error => console.error('Failed to save solved puzzle:', error));
+    }
+  }, [gameState.isWon, gameState.currentPuzzle, user?.id, puzzleStartTime]);
+
+  const handleNextPuzzle = () => {
+    if (
+      gameState.moves > 0 &&
+      !gameState.isWon &&
+      gameState.currentPuzzle &&
+      user?.id &&
+      user.token &&
+      puzzleStartTime
+    ) {
+      const payload = {
+        puzzleId: gameState.currentPuzzle.id,
+        startedAt: puzzleStartTime.toISOString().slice(0, 19)
+      };
+      axios.post(`http://localhost:8080/api/users/${user.id}/aborted`, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        }
+      }).catch(error => console.error('Failed to save aborted puzzle:', error));
+    }
+    nextPuzzle();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -67,7 +125,7 @@ const HomePage: React.FC = () => {
         {/* Header */}
         <header className="text-center mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div>
+            <div className="text-center sm:text-left w-2/3">
               <h1 className="text-4xl font-bold text-gray-800 mb-2">
                 SQL Puzzle
               </h1>
@@ -75,11 +133,19 @@ const HomePage: React.FC = () => {
                 Arrange elements to form a valid SQL statement
               </p>
             </div>
-            <div className="text-center sm:text-right">
+            <div className="text-center sm:text-right w-1/6">
               <h4 className="text-gray-800 font-bold text-lg">Hi { username || user?.username || 'Guest' }</h4>
               <p className="text-gray-600 text-lg">
                 <b>{getNumberPuzzlesSolvedToday()}</b> puzzles solved today
               </p>
+            </div>
+            <div className="w-1/6">
+              <button
+                onClick={logout}
+                className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </header>
@@ -211,7 +277,7 @@ const HomePage: React.FC = () => {
             Play this again
           </button>
           <button
-            onClick={nextPuzzle}
+            onClick={handleNextPuzzle}
             className="bg-green-700 hover:bg-green-500 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105 shadow-md"
           >
             Play another puzzle
@@ -222,7 +288,7 @@ const HomePage: React.FC = () => {
         {gameState.isWon && showWinCelebration && (
           <WinCelebration
             moves={gameState.moves}
-            onNextPuzzle={nextPuzzle}
+            onNextPuzzle={handleNextPuzzle}
             onResetPuzzle={resetPuzzle}
             onClose={() => setShowWinCelebration(false)}
           />
